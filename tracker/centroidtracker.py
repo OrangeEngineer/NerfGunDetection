@@ -8,6 +8,7 @@ class CentroidTracker():
 		self.nextObjectID = 0
 		self.objects = OrderedDict()
 		self.disappeared = OrderedDict()
+		self.buffer_disappeared = OrderedDict()
 		self.maxDisappeared = maxDisappeared
 		self.maxDistance = maxDistance
 
@@ -22,7 +23,8 @@ class CentroidTracker():
 
 	def update(self, rects):
 		if len(rects) == 0:
-			for objectID in self.disappeared.keys():
+			self.buffer_disappeared = self.disappeared.copy()
+			for objectID in self.buffer_disappeared.keys():
 				self.disappeared[objectID] += 1
 				if self.disappeared[objectID] > self.maxDisappeared:
 					self.deregister(objectID)
