@@ -20,7 +20,8 @@ class NerfGunGame(object):
         self.clock = pygame.time.Clock()
         self.surface = pygame.display.set_mode(self.window_size,pygame.RESIZABLE)
         pygame.display.set_caption(self.title)
-        self.font = pygame.font.SysFont("monospace", 20)
+        self.font = pygame.font.SysFont("sd prostreet2", 40)
+        self.bg = pygame.image.load("res/Target/space.jpg")
 
     def __handle_events(self):
         for event in pygame.event.get():
@@ -40,8 +41,8 @@ class NerfGunGame(object):
             self.__handle_events()
 
             self.update()
-
             self.surface.fill(self.background_color)
+            # self.surface.blit(self.bg, (0, 0))
             self.render(self.surface)
             pygame.display.update()
 
