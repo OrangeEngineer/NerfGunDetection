@@ -17,8 +17,10 @@ import imutils
 from Target import *
 from Bullet import *
 
-vertical_cap = WebcamVideoStream(src=2).start()
+# Using WebcamVideoStream will make multi-thread process which help a whole program faster and get the fastest FPS.
+# To change Webcam config, you have to access to /usr/local/lib/python3.6/dist-packages/imutils/video/webcamvideostream.py 
 
+vertical_cap = WebcamVideoStream(src=2).start()
 horizontal_cap = WebcamVideoStream(src=3).start()
 
 ix,iy = -1,-1
@@ -56,14 +58,8 @@ class AlienShooting(gamelib.NerfGunGame):
     BLACK = pygame.Color('black')
     def __init__(self):
         super(AlienShooting, self).__init__('Protect the world from aliens!!', WHITE)
-        self.setTimeIntervalTarget = 0
-        self.setTimeIntervalBullet = 5
-        self.setTimeIntervalRect = 0
         
-        self.speed = 2
-
         self.score = 0
-        self.totalHit = 0
         self.GameOver = False
         self.Ready = False 
         self.HaveCoordinatePoints = False
@@ -71,12 +67,7 @@ class AlienShooting(gamelib.NerfGunGame):
         self.Bullets = []
         self.Targets = []
 
-        self.BulletsList = []
-        self.BulletsAndTime = []
-
-        self.v_ret =[]
         self.v_frame=[]
-        self.h_ret =[]
         self.h_frame=[]
         
         self.VerticalRects = []
@@ -85,15 +76,8 @@ class AlienShooting(gamelib.NerfGunGame):
         self.VerticalBaseLine = int((480*29)/30)
         self.HorizontalBaseLine = int((480*29)/30)
 
-        self.num_frame = 0
-        self.VerticalTrackableObjects = {}
-        self.HorizontalTrackableObjects = {}
-        self.VerticalObject = []
-        self.HorizontalObject = []
-
         self.VerticalHitRect = []
         self.HorizontalHitRect = []
-        self.HitObjects = []
 
     def init(self):
         super(AlienShooting, self).init()
@@ -154,7 +138,7 @@ class AlienShooting(gamelib.NerfGunGame):
                     #     if((H_cts[0] > Bullet.x - 10 or H_cts[0] < Bullet.x + 10) and (V_cts[0] > Bullet.y - 10 or V_cts[0] < Bullet.y + 10) ):
                     #         Overlap = True
                     # if not Overlap:
-                    if (len(self.BulletsList) == 0) or not (point in self.BulletsList):
+                    if (len(self.Bullets) == 0):
                         self.addBullet(H_cts[0],V_cts[0])
                         self.checkCollisionTarget(point)
                     else:
@@ -225,49 +209,12 @@ class AlienShooting(gamelib.NerfGunGame):
                 # img = cv.rectangle(frame,(x,y),(x+w,y+h),(0,0,255),2)
                 
             pass
-        return rects
-
-    def ObjectTracker(self,objects,perspective):
-        # cv.rectangle(self.frame, (200, 200), (900, 600),(0,255,0),2)
-        for (objectID, centroid) in objects.items():
-            if perspective == 0:
-                TrackObject = self.VerticalTrackableObjects.get(objectID, None)
-            elif perspective == 1:
-                TrackObject = self.HorizontalTrackableObjects.get(objectID, None)
-            
-            if TrackObject is None:
-                TrackObject = TrackableObject(objectID, centroid)
-            else: 
-                if perspective == 0:
-                    for centroid in TrackObject.centroids:
-                        cv.circle(self.v_frame, (centroid[0] , centroid[1]), 6, (0, 255, 255), -1)
-                elif perspective == 1:
-                    for centroid in TrackObject.centroids:
-                        cv.circle(self.h_frame, (centroid[0] , centroid[1]), 6, (0, 255, 255), -1)
-                
-                y = [c[1] for c in TrackObject.centroids]
-                direction = centroid[1] - np.mean(y)    
-                TrackObject.centroids.append(centroid)
-
-            if perspective == 0:
-                self.VerticalTrackableObjects[objectID] = TrackObject
-                text = "ID {}".format(objectID)
-                cv.putText(self.v_frame, text, (centroid[0] - 10, centroid[1] - 10),
-                    cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                cv.circle(self.v_frame, (centroid[0], centroid[1]), 4, (0, 255, 0), -1)
-            elif perspective == 1:
-                self.HorizontalTrackableObjects[objectID] = TrackObject
-                text = "ID {}".format(objectID)
-                cv.putText(self.h_frame, text, (centroid[0] - 10, centroid[1] - 10),
-                    cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                cv.circle(self.h_frame, (centroid[0], centroid[1]), 4, (0, 255, 0), -1)
-           
+        return rects     
 
     def checkCollisionTarget(self, point):
         for Target in self.Targets:
             Target.getrectTarget()
             if(Target.getrectTarget().collidepoint(point)):
-                # if(not(point) in self.BulletsList):
                 print("Hit at: "+str(point) + "\n")
                 self.score += 1
                 # self.speed += self.score / 10
@@ -292,11 +239,6 @@ class AlienShooting(gamelib.NerfGunGame):
 
     def updateBullet(self):
         deltatime = int(pygame.time.get_ticks() / 1000)
-
-        print("deltatime: "+str(deltatime))
-        # if deltatime > self.setTimeIntervalBullet :
-        #     self.setTimeIntervalBullet = deltatime
-        #     self.setTimeIntervalBullet += 3
         if(len(self.Bullets) > 0 ):
             for Bullet in self.Bullets :
                 if (Bullet.TimeStamp + 2 <= deltatime):
@@ -319,10 +261,6 @@ class AlienShooting(gamelib.NerfGunGame):
             Target.render(surface)
 
     def updateTarget(self):
-        deltatime = pygame.time.get_ticks() / 10000
-        if deltatime > self.setTimeIntervalTarget :
-            self.setTimeIntervalTarget = deltatime
-
         for Target in self.Targets :
             Target.update()
 
