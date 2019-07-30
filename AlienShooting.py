@@ -20,8 +20,8 @@ from Bullet import *
 # Using WebcamVideoStream will make multi-thread process which help a whole program faster and get the fastest FPS.
 # To change Webcam config, you have to access to /usr/local/lib/python3.6/dist-packages/imutils/video/webcamvideostream.py 
 
-vertical_cap = WebcamVideoStream(src=2).start()
-horizontal_cap = WebcamVideoStream(src=3).start()
+vertical_cap = WebcamVideoStream(src=3).start()
+horizontal_cap = WebcamVideoStream(src=2).start()
 
 ix,iy = -1,-1
 
@@ -130,22 +130,31 @@ class AlienShooting(gamelib.NerfGunGame):
 
                     # min_length = min(len(self.VerticalHitRect),len(self.HorizontalHitRect))
                     # for index in range(0,min_length):
-                    point = (H_cts[0],V_cts[0])
-                    time = pygame.time.get_ticks() / 1000
 
-                    print("time: " + str(time))
-                    # for Bullet in  self.Bullets :
-                    #     if((H_cts[0] > Bullet.x - 10 or H_cts[0] < Bullet.x + 10) and (V_cts[0] > Bullet.y - 10 or V_cts[0] < Bullet.y + 10) ):
-                    #         Overlap = True
-                    # if not Overlap:
-                    if (len(self.Bullets) == 0):
-                        self.addBullet(H_cts[0],V_cts[0])
-                        self.checkCollisionTarget(point)
-                    else:
-                        if (not self.CheckBulletOverlapped(H_cts[0],V_cts[0])):
-                            self.addBullet(H_cts[0],V_cts[0])
-                            self.checkCollisionTarget(point)        
+                    #####################################################################################################################################
                     
+                    # self.addBullet(H_cts[0],V_cts[0])
+                    # self.checkCollisionTarget((H_cts[0],V_cts[0]))
+                    
+                    #####################################################################################################################################
+
+                    if len(V_cts) == len(H_cts):
+                        for i in range(0,len(V_cts)):
+                    # # time = pygame.time.get_ticks() / 1000
+
+                    # # print("time: " + str(time))
+                    # # for Bullet in  self.Bullets :
+                    # #     if((H_cts[0] > Bullet.x - 10 or H_cts[0] < Bullet.x + 10) and (V_cts[0] > Bullet.y - 10 or V_cts[0] < Bullet.y + 10) ):
+                    # #         Overlap = True
+                    # if not Overlap:
+                            if (len(self.Bullets) == 0):
+                                self.addBullet(H_cts[i],V_cts[i])
+                                self.checkCollisionTarget((H_cts[i],V_cts[i]))
+                            else:
+                                if (not self.CheckBulletOverlapped(H_cts[i],V_cts[i])):
+                                    self.addBullet(H_cts[i],V_cts[i])
+                                    self.checkCollisionTarget((H_cts[i],V_cts[i]))        
+                        
                     self.VerticalHitRect = []
                     self.HorizontalHitRect = []
 
@@ -165,12 +174,15 @@ class AlienShooting(gamelib.NerfGunGame):
     def GetCoordinate(self):
         if not(self.HaveCoordinatePoints):
             
-            VerticalPoints.append(469)
-            VerticalPoints.append(14)
+            # VerticalPoints.append(595)
+            # VerticalPoints.append(14)
             
-            HorizontalPoints.append(593)
-            HorizontalPoints.append(45)
+            # HorizontalPoints.append(552)
+            # HorizontalPoints.append(33)
             
+            cv.setMouseCallback('Vertical_Perspective',GetPointsVertical)
+            cv.setMouseCallback('Horizontal_Perspective',GetPointsHorizontal)
+
             if (len(VerticalPoints) >= 2) and (len(HorizontalPoints) >= 2)  :
                 self.HaveCoordinatePoints = True
                 VerticalPoints.sort()
@@ -241,7 +253,7 @@ class AlienShooting(gamelib.NerfGunGame):
         deltatime = int(pygame.time.get_ticks() / 1000)
         if(len(self.Bullets) > 0 ):
             for Bullet in self.Bullets :
-                if (Bullet.TimeStamp + 2 <= deltatime):
+                if (Bullet.TimeStamp + 1 <= deltatime):
                     self.Bullets.remove(Bullet)
                     pass
 
